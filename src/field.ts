@@ -32,7 +32,7 @@ export class HSField {
 
 		applicationId: '',
 		tableId: '',
-		fid: -1
+		fid: ''
 	};
 
 	/**
@@ -43,7 +43,7 @@ export class HSField {
 	private _hs: HighSystems;
 	private _applicationId: string = '';
 	private _tableId: string = '';
-	private _fid: number = -1;
+	private _fid: string = '';
 	private _data: Record<any, any> = {};
 
 	constructor(options?: Partial<HSFieldOptions>){
@@ -75,7 +75,7 @@ export class HSField {
 	 * This method clears the HSField instance of any trace of the existing field, but preserves defined connection settings.
 	 */
 	clear(): this {
-		this._fid = -1;
+		this._fid = '';
 		this._data = {};
 
 		return this;
@@ -148,7 +148,7 @@ export class HSField {
 	/**
 	 * Get the set HSField Field ID
 	 */
-	getFid(): number {
+	getFid(): string {
 		return this._fid;
 	}
 
@@ -211,7 +211,7 @@ export class HSField {
 
 		let results;
 
-		if(this.getFid() > 0){
+		if(this.getFid()){
 			data.fieldId = this.getFid();
 
 			results = await this._hs.putField(data);
@@ -268,7 +268,7 @@ export class HSField {
 	 *
 	 * @param fid High Systems Field ID
 	 */
-	setFid(fid: number): this {
+	setFid(fid: string): this {
 		this._fid = fid;
 
 		return this;
@@ -305,12 +305,16 @@ export class HSField {
 			this._hs = new HighSystems(json.highsystems);
 		}
 
+		if(json.applicationId){
+			this.setApplicationId(json.applicationId);
+		}
+
 		if(json.tableId){
 			this.setTableId(json.tableId);
 		}
 
 		if(json.fid || json.id){
-			this.setFid(json.fid || json.id || -1);
+			this.setFid(json.fid || json.id || '');
 		}
 
 		if(json.data){
@@ -328,6 +332,7 @@ export class HSField {
 	toJSON(): HSFieldJSON {
 		return {
 			highsystems: this._hs.toJSON(),
+			applicationId: this.getApplicationId(),
 			tableId: this.getTableId(),
 			fid: this.getFid(),
 			data: merge({}, this._data)
@@ -387,14 +392,15 @@ export type HSFieldOptions = {
 	highsystems: HighSystemsOptions | HighSystems;
 	applicationId: string;
 	tableId: string;
-	fid: number;
+	fid: string;
 }
 
 export type HSFieldJSON = {
 	highsystems?: HighSystemsOptions;
+	applicationId: string;
 	tableId: string;
-	fid: number;
-	id?: number;
+	fid: string;
+	id?: string;
 	data?: Record<any, any>;
 }
 
